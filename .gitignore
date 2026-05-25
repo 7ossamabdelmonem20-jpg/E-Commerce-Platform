@@ -12,7 +12,9 @@
 
 # testing
 /coverage
-
+node_modules
+.next
+.env
 # next.js
 /.next/
 /out/
