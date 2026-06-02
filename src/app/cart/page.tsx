@@ -1,23 +1,31 @@
 "use client";
 
 import getLoggedUserCart from "@/cartActions/getUserCart.action";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Trash2, Minus, Plus, ShoppingCart } from "lucide-react";
 import removeItemFromCart from "@/cartActions/removeItemCart.action";
 import { toast } from "sonner";
-import { CheckCircle2 } from "lucide-react";
 import updateCartQuantity from "@/cartActions/updateCartQuntite.action";
-
+import { CartContext } from "@/context/CartContext";
+import { CartProductType } from "@/types/cart.type";
+import  Link from "next/link";
 export default function Cart() {
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<[]>([]);
   const [removeDesiable, setRemoveDesiable] = useState(false);
   const [updateDesiable, setupdateDesiable] = useState(false);
+  const { numberOfCartItem, setNumberOfCartItem } = useContext(CartContext);
+  const [total, setTotal] = useState(0);
+  const [cartId ,setCartId] = useState("")
   async function getUserCart() {
     try {
       let res = await getLoggedUserCart();
 
       if (res.status === "success") {
         setProducts(res.data.products);
+        // console.log(res.cartId);
+        setCartId(res.cartId)
+        // console.log(res.data.totalCartPrice);
+        setTotal(res.data.totalCartPrice);
       }
     } catch (err) {
       console.log(err);
@@ -31,6 +39,12 @@ export default function Cart() {
     // console.log(res.status);
     if (res.status === "success") {
       // console.log(res.data.products);
+
+      let sum = 0;
+      res.data.products.forEach((product: CartProductType) => {
+        sum += product.count;
+      });
+      setNumberOfCartItem(sum);
       setProducts(res.data.products);
       toast.custom((t) => (
         <div className="relative overflow-hidden w-[370px] rounded-[28px] border border-red-500/20 bg-[#111111] p-5 shadow-2xl">
@@ -58,6 +72,7 @@ export default function Cart() {
         </div>
       ));
       setRemoveDesiable(false);
+      getUserCart();
     } else {
       toast.error("can't delete item", {
         position: "bottom-right",
@@ -66,7 +81,7 @@ export default function Cart() {
     }
   }
 
-  async function updateProduct(id: string, count: string) {
+  async function updateProduct(id: string, count: string, sign: string) {
     setupdateDesiable(true);
     let res = await updateCartQuantity(id, count);
     // console.log(res);
@@ -99,7 +114,13 @@ export default function Cart() {
           </div>
         </div>
       ));
+      if (sign === "+") {
+        setNumberOfCartItem(numberOfCartItem + 1);
+      } else if (sign === "-") {
+        setNumberOfCartItem(numberOfCartItem - 1);
+      }
       setupdateDesiable(false);
+      getUserCart();
     }
   }
   useEffect(() => {
@@ -139,7 +160,7 @@ export default function Cart() {
 
             {/* Products */}
             <div className="divide-y divide-zinc-800">
-              {products.map((product: any) => (
+              {products.map((product: CartProductType) => (
                 <div
                   key={product._id}
                   className="grid grid-cols-1 lg:grid-cols-6 items-center gap-5 px-6 py-5 hover:bg-zinc-800/40 transition"
@@ -166,7 +187,11 @@ export default function Cart() {
                       <button
                         disabled={updateDesiable}
                         onClick={() =>
-                          updateProduct(product.product.id, product.count - 1)
+                          updateProduct(
+                            product.product.id,
+                            `${product.count - 1}`,
+                            "-",
+                          )
                         }
                         className="w-8 disabled:bg-gray-600 disabled:cursor-wait h-8 rounded-full bg-zinc-700 hover:bg-zinc-600 flex items-center justify-center transition"
                       >
@@ -180,7 +205,11 @@ export default function Cart() {
                       <button
                         disabled={updateDesiable}
                         onClick={() =>
-                          updateProduct(product.product.id, product.count + 1)
+                          updateProduct(
+                            product.product.id,
+                            `${product.count + 1}`,
+                            "+",
+                          )
                         }
                         className="w-8 disabled:cursor-wait disabled:bg-gray-600 h-8 rounded-full bg-emerald-500 hover:bg-emerald-600 flex items-center justify-center transition"
                       >
@@ -217,24 +246,22 @@ export default function Cart() {
           </div>
 
           {/* Total */}
+
           <div className="mt-8 flex justify-end">
             <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 w-full md:w-[350px]">
               <div className="flex justify-between items-center mb-4">
                 <span className="text-zinc-400">Total</span>
 
                 <span className="text-2xl font-bold text-white">
-                  {products.reduce(
-                    (acc, item) => acc + item.price * item.count,
-                    0,
-                  )}
-
+                  {total}
                   <span className="mx-2">EGP</span>
                 </span>
               </div>
-
-              <button className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-3 rounded-2xl transition">
-                Checkout
-              </button>
+              <Link href={`/checkout/${cartId}`}>
+                <button className="w-full cursor-pointer bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-3 rounded-2xl transition">
+                  Checkout
+                </button>
+              </Link>
             </div>
           </div>
         </div>

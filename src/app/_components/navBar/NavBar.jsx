@@ -1,25 +1,25 @@
 "use client";
 
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { signOut, useSession } from "next-auth/react";
+import { CartContext } from "@/context/CartContext";
 
 export default function NavBar() {
+  const { numberOfCartItem } = useContext(CartContext);
   const [isOpen, setIsOpen] = useState(false);
 
   const { data: session, status } = useSession();
   // console.log(session);
   // console.log(status);
-  function logout(){
-    signOut({callbackUrl:"/login"})
+  function logout() {
+    signOut({ callbackUrl: "/login" });
   }
   return (
     <nav className="bg-emerald-500 text-white shadow-lg sticky top-0 z-50 border-b border-white/10">
       <div className="container mx-auto w-[90%] lg:w-[85%]">
-        
         {/* Top Navbar */}
         <div className="flex items-center justify-between py-4">
-          
           {/* Logo */}
           <Link
             href="/"
@@ -29,17 +29,13 @@ export default function NavBar() {
               <i className="fa-solid fa-store text-white"></i>
             </div>
 
-            <span className="hover:text-black duration-300">
-              Store App
-            </span>
+            <span className="hover:text-black duration-300">Store App</span>
           </Link>
 
           {/* Desktop Links */}
           <div className="hidden lg:flex items-center gap-10">
-            
             {/* Pages */}
             <ul className="flex items-center gap-3 font-medium">
-              
               <li>
                 <Link
                   href="/"
@@ -50,12 +46,17 @@ export default function NavBar() {
               </li>
 
               {session && (
-                <li>
+                <li className="">
                   <Link
                     href="/cart"
-                    className="px-4 py-2 rounded-xl hover:bg-white/10 hover:text-black transition-all duration-300"
+                    className="px-4 py-2 rounded-xl relative hover:bg-white/10 hover:text-black transition-all duration-300"
                   >
                     Cart
+                    {numberOfCartItem > 0 && (
+                      <span className="absolute bg-white size-5 -top-3 rounded-full text-black flex justify-center items-center end-[-10px]">
+                        {numberOfCartItem}
+                      </span>
+                    )}
                   </Link>
                 </li>
               )}
@@ -90,12 +91,10 @@ export default function NavBar() {
 
             {/* Social + Auth */}
             <ul className="flex items-center gap-4 text-sm">
-              
               {!session ? (
                 <>
                   {/* Social */}
                   <div className="flex items-center gap-3 text-lg">
-                    
                     <li>
                       <Link
                         href="https://facebook.com"
@@ -168,7 +167,7 @@ export default function NavBar() {
                   {/* Sign Out */}
                   <li>
                     <span
-                     onClick={logout}
+                      onClick={logout}
                       className="px-4 cursor-pointer py-2 rounded-xl bg-white text-emerald-500 hover:bg-black hover:text-white duration-300"
                     >
                       Sign Out
@@ -184,21 +183,15 @@ export default function NavBar() {
             onClick={() => setIsOpen(!isOpen)}
             className="lg:hidden w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center text-xl"
           >
-            <i
-              className={`fa-solid ${
-                isOpen ? "fa-xmark" : "fa-bars"
-              }`}
-            ></i>
+            <i className={`fa-solid ${isOpen ? "fa-xmark" : "fa-bars"}`}></i>
           </button>
         </div>
 
         {/* Mobile Dropdown */}
         {isOpen && (
           <div className="lg:hidden pb-5">
-
             {/* Pages */}
             <ul className="flex flex-col gap-3 border-t border-white/20 pt-5">
-
               <li>
                 <Link
                   href="/"
@@ -212,9 +205,14 @@ export default function NavBar() {
                 <li>
                   <Link
                     href="/cart"
-                    className="block px-4 py-3 rounded-xl hover:bg-white/10 transition"
+                    className="block relative  px-4 py-3 rounded-xl hover:bg-white/10 transition"
                   >
                     Cart
+                    {numberOfCartItem > 0 && (
+                      <span className="absolute -top-2.5 end-[-10px] flex size-5 bg-white rounded-full justify-center items-center">
+                        {numberOfCartItem}
+                      </span>
+                    )}
                   </Link>
                 </li>
               )}
@@ -252,7 +250,6 @@ export default function NavBar() {
               <>
                 {/* Social */}
                 <div className="flex gap-4 text-lg mt-6">
-                  
                   <Link
                     href="https://facebook.com"
                     target="_blank"
@@ -288,7 +285,6 @@ export default function NavBar() {
 
                 {/* Auth */}
                 <ul className="flex flex-col gap-3 mt-6">
-                  
                   <li>
                     <Link
                       href="/register"
@@ -311,7 +307,6 @@ export default function NavBar() {
             ) : (
               <>
                 <ul className="flex flex-col gap-4 mt-6">
-                  
                   {session && (
                     <li className="bg-white/10 rounded-xl p-4 text-center font-medium">
                       WELCOME {session?.user.name}
@@ -319,7 +314,8 @@ export default function NavBar() {
                   )}
 
                   <li>
-                    <span onClick={logout}
+                    <span
+                      onClick={logout}
                       className="block cursor-pointer text-center py-3 rounded-xl bg-white text-emerald-500 font-semibold"
                     >
                       Sign Out

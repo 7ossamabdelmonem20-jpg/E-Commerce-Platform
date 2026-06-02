@@ -6,7 +6,7 @@ import "../../node_modules/@fortawesome/fontawesome-free/css/all.min.css";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/sonner";
 import MySessionProvider from "@/MySessionProvider/MySessionProvider";
-
+import CartContextProvider from "@/context/CartContext";
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-mono",
@@ -46,10 +46,12 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <MySessionProvider>
-          <Toaster />
-          <NavBar />
+          <CartContextProvider>
+            <Toaster />
+            <NavBar />
 
-          {children}
+            {children}
+          </CartContextProvider>
         </MySessionProvider>
       </body>
     </html>
