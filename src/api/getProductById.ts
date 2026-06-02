@@ -1,7 +1,13 @@
 export default async function getProductById(id: string) {
-  let res = await fetch(
+  const res = await fetch(
     `https://ecommerce.routemisr.com/api/v1/products/${id}`
   );
 
-  return res.json();
+  const result = await res.json();
+
+  console.log("API RESULT:", result);
+
+  if (!result?.data) return null;
+
+  return result.data;
 }
