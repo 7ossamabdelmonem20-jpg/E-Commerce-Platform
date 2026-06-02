@@ -15,8 +15,10 @@ type CartContextType = {
   setNumberOfCartItem: Dispatch<SetStateAction<number>>;
 };
 
-export const CartContext = createContext<CartContextType | null>(null);
-
+export const CartContext = createContext<CartContextType>({
+  numberOfCartItem: 0,
+  setNumberOfCartItem: () => {},
+});
 type CartContextProviderProps = {
   children: ReactNode;
 };
@@ -51,9 +53,7 @@ export default function CartContextProvider({
   }, []);
 
   return (
-    <CartContext.Provider
-      value={{ numberOfCartItem, setNumberOfCartItem }}
-    >
+    <CartContext.Provider value={{ numberOfCartItem, setNumberOfCartItem }}>
       {children}
     </CartContext.Provider>
   );
